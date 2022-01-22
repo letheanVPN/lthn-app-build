@@ -1,0 +1,13 @@
+include:
+  - local: 'build-conf/**/*.gitlab-ci.yml'
+
+stages:
+  - prep
+  - libs
+  - depends
+  - build
+  - test
+  - deploy
+
+
+
