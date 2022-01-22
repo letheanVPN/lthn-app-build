@@ -1,0 +1,52 @@
+name: build:depends
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - build-conf/compile/depends.Dockerfile
+      - .github/workflows/depends.yml
+  pull_request:
+    paths:
+      - build-conf/compile/depends.Dockerfile
+      - .github/workflows/depends.yml
+    branches: [ main ]
+
+jobs:
+  depends:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 9
+      fail-fast: false
+      matrix:
+        build: [
+            x86_64-unknown-freebsd,
+            x86_64-unknown-linux-gnu,
+            i686-pc-linux-gnu,
+            x86_64-w64-mingw32,
+            i686-w64-mingw32,
+            arm-linux-gnueabihf,
+            aarch64-linux-gnu,
+            riscv64-linux-gnu
+        ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v1
+        id: buildx
+        with:
+          install: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        id: source_windows
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          build-args: BUILD=${{ matrix.build }}
+          tags: lthn/build:depends-${{ matrix.build }}
+          file: build-conf/compile/depends.Dockerfile

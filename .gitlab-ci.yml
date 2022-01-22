@@ -1,0 +1,24 @@
+image: docker
+services:
+  - name: docker:dind
+    command: [ "--experimental" ]
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_DRIVER: overlay2
+  DOCKER_BUILDKIT: 1
+  IMG_TAG: compile
+before_script:
+  - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" $DOCKER_REGISTRY
+
+depends:
+  stage: build
+  parallel:
+    matrix:
+      - BUILD: x86_64-unknown-linux-gnu
+      - BUILD: x86_64-pc-linux-gnu
+      - BUILD: x86_64-w64-mingw32
+      - BUILD: x86_64-unknown-freebsd
+      - BUILD: x86_64-apple-darwin
+  script:
+    - docker build --build-arg BUILD=$BUILD --target=$BUILD -t $DOCKER_REGISTRY/lthn/build:$BUILD .
+    - docker push $DOCKER_REGISTRY/lthn/build:$BUILD

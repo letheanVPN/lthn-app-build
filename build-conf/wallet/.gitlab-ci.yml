@@ -1,0 +1,146 @@
+wallet:preload:
+  stage: prep
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  parallel:
+    matrix:
+      - BUILD: linux
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker pull "lthn/build:wallet-$BUILD-base" || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY/lthn/build:wallet-$BUILD-base -t lthn/build:wallet-$BUILD-base -f build-conf/wallet/$BUILD/base.Dockerfile build-src
+    - docker image tag "lthn/build:wallet-$BUILD-base" "$CI_REGISTRY/lthn/build:wallet-$BUILD-base"
+
+wallet:libs:
+  stage: libs
+  image: docker
+  needs: ["wallet:preload"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  parallel:
+    matrix:
+      - BUILD: linux
+        LIB: [libx, utils, cmake, boost, fontconfig]
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker pull "lthn/build:wallet-lib-$BUILD-$LIB" || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY/lthn/build:wallet-lib-$BUILD-$LIB -t lthn/build:wallet-lib-$BUILD-$LIB -f build-conf/wallet/$BUILD/$LIB.Dockerfile build-src
+    - docker image tag "lthn/build:wallet-lib-$BUILD-$LIB" "$CI_REGISTRY/lthn/build:wallet-lib-$BUILD-$LIB"
+
+
+wallet:
+  stage: build
+  image: docker
+  needs: ["wallet:libs"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  parallel:
+    matrix:
+      - BUILD: linux
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker pull "lthn/build:wallet-$BUILD" || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg BUILD=$BUILD --cache-from $CI_REGISTRY/lthn/build:wallet-$BUILD -t lthn/build:wallet-$BUILD -f build-conf/wallet/$BUILD.Dockerfile build-src
+    - docker image tag "lthn/build:wallet-$BUILD" "$CI_REGISTRY/lthn/build:wallet-$BUILD"
+
+wallet:deploy:
+  stage: deploy
+  needs: ["wallet"]
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  parallel:
+    matrix:
+      - TARGET: wallet-linux
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" $DOCKER_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$TARGET
+    - docker tag $CI_REGISTRY_IMAGE:$TARGET $DOCKER_REGISTRY/lthn/build:$TARGET
+    - docker push $DOCKER_REGISTRY/lthn/build:$TARGET
+  environment:
+    name: $IMG_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+
+sources:
+  stage: libs
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  parallel:
+    matrix:
+      - BUILD: osx
+      - BUILD: linux
+      - BUILD: win
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - sleep $(shuf -i1-180 -n1);
+  script:
+    - docker build --build-arg BUILD=$BUILD -t lthn/build:sources-$BUILD -f build-conf/compile/sources.Dockerfile build-src
+    - docker image tag "lthn/build:sources-$BUILD" "$CI_REGISTRY/lthn/build:sources-$BUILD"
+  rules:
+    - changes:
+        - build-conf/compile/sources.Dockerfile
+
+
+sources:deploy:
+  stage: deploy
+  needs: ["sources"]
+  image: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
+  services:
+    - name: docker:dind
+      command: [ "--experimental" ]
+  parallel:
+    matrix:
+      - TARGET: osx
+      - TARGET: linux
+      - TARGET: win
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker login -u "$DOCKER_REGISTRY_USER" -p "$DOCKER_REGISTRY_PASSWORD" $DOCKER_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY/lthn/build:sources-$TARGET
+    - docker tag $CI_REGISTRY/lthn/build:sources-$TARGET $DOCKER_REGISTRY/lthn/build:sources-$TARGET
+    - docker push $DOCKER_REGISTRY/lthn/build:sources-$TARGET
+  environment:
+    name: $IMG_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+      changes:
+          - build-conf/compile/sources.Dockerfile
