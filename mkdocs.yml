@@ -1,0 +1,43 @@
+site_name: Lethean Develop Docs
+site_url: https://lethean.dev
+site_dir: public
+copyright:
+theme:
+  name: material
+  custom_dir: docs/overrides
+  favicon: images/favicon.ico
+  features:
+    - toc.integrate
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: lethean
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/letheanvpn
+    - icon: fontawesome/brands/github
+      link: https://github.com/LetheanMovement
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.com/lethean.io
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions:
+  - meta
+  - toc:
+      permalink: true
