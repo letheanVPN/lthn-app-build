@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:xenial-20210416
 ARG THREADS=1
 
 ARG QT_VERSION=5.15.2
