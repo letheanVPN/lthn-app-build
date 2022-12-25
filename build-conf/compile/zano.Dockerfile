@@ -71,7 +71,6 @@ RUN set -ex \
     && cd openssl-${OPENSSL_VERSION_DOT} \
     && ./config --prefix=/root/openssl --openssldir=/root/openssl shared zlib \
     && make \
-    && make test \
     && make install \
     && cd .. \
     && rm -rf openssl-${OPENSSL_VERSION_DOT}
