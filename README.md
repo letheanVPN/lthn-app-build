@@ -10,20 +10,9 @@ With docker, Opensource developers have access to "pull and play" build environm
 ![Docker](https://www.docker.com/sites/default/files/d8/2019-07/horizontal-logo-monochromatic-white.png)  
 
 * [lthn/build](https://hub.docker.com/r/lthn/build)
+* [lthn/build](https://hub.docker.com/r/lthn/build)
 * [Docker Desktop](https://www.docker.com/products/docker-desktop)
-* [Free & Paid Information](https://www.docker.com/pricing)
-
-## Secure Build Environments: Kasm Workspaces 
-
-![Kasm Workspaces](https://kasmweb.com/docs/latest/_static/kasm_horizontal_logo_white.png)
-
-With our concurrent licence sponsorship from [Kasm Workspaces](https://www.kasmweb.com/); we can not only test applications,
-using [SANS SIFT Workstation](https://www.sans.org/tools/sift-workstation/);
-
-We can build other OpenSource projects we partner / sponsor, so we can stand behind the code that produced a binary with fingerprint X; recorded in git, with its result in public domain.
-
-folders depth to the `hour` depth of `timestamp_to_human(now)`; keyed with [mariadb](http://mariadb.com/kb/en/gtid/) - [gtid/](https://www.namebase.io/domains/gtid)
-
+* 
 
 
 # Compile images

@@ -7,11 +7,13 @@ on:
       - build-conf/compile/sources.Dockerfile
       - build-conf/compile/base.Dockerfile
       - .github/workflows/compile.yml
+      - depends
   pull_request:
     paths:
       - build-conf/compile/sources.Dockerfile
       - build-conf/compile/base.Dockerfile
       - .github/workflows/compile.yml
+      - depends
     branches: [ main ]
 
 jobs:

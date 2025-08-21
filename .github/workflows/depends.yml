@@ -6,10 +6,12 @@ on:
     paths:
       - build-conf/compile/depends.Dockerfile
       - .github/workflows/depends.yml
+      - depends
   pull_request:
     paths:
       - build-conf/compile/depends.Dockerfile
       - .github/workflows/depends.yml
+      - depends
     branches: [ main ]
 
 jobs:

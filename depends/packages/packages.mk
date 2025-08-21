@@ -1,36 +1,23 @@
-packages:=boost openssl zeromq libiconv
+packages:=
 
-native_packages := native_ccache
+boost_packages = boost
 
-hardware_packages := hidapi protobuf libusb
-hardware_native_packages := native_protobuf
+libevent_packages = libevent
 
-android_native_packages = android_ndk
-android_packages = ncurses readline sodium
+qrencode_linux_packages = qrencode
+qrencode_darwin_packages = qrencode
+qrencode_mingw32_packages = qrencode
 
-darwin_native_packages = native_biplist native_ds_store native_mac_alias $(hardware_native_packages)
-darwin_packages = sodium ncurses readline $(hardware_packages)
+qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon libxcb_util libxcb_util_render libxcb_util_keysyms libxcb_util_image libxcb_util_wm
+qt_darwin_packages=qt
+qt_mingw32_packages=qt
 
-# not really native...
-freebsd_native_packages = freebsd_base
-freebsd_packages = ncurses readline sodium
+bdb_packages=bdb
+sqlite_packages=sqlite
 
-linux_packages = eudev ncurses readline sodium $(hardware_packages)
-linux_native_packages = $(hardware_native_packages)
-qt_packages = qt
+zmq_packages=zeromq
 
-ifeq ($(build_tests),ON)
-packages += gtest
-endif
+multiprocess_packages = libmultiprocess capnp
+multiprocess_native_packages = native_libmultiprocess native_capnp
 
-ifneq ($(host_arch),riscv64)
-linux_packages += unwind
-endif
-
-mingw32_packages = icu4c sodium $(hardware_packages)
-mingw32_native_packages = $(hardware_native_packages)
-
-ifneq ($(build_os),darwin)
-darwin_native_packages += native_cctools native_cdrkit native_libdmg-hfsplus
-endif
-
+usdt_linux_packages=systemtap
