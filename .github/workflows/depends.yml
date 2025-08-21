@@ -23,13 +23,19 @@ jobs:
       matrix:
         build: [
             x86_64-unknown-freebsd,
-            x86_64-unknown-linux-gnu,
+            x86_64-pc-linux-gnu,
             i686-pc-linux-gnu,
             x86_64-w64-mingw32,
             i686-w64-mingw32,
             arm-linux-gnueabihf,
             aarch64-linux-gnu,
-            riscv64-linux-gnu
+            riscv32-linux-gnu,
+            riscv64-linux-gnu,
+            x86_64-apple-darwin,
+            arm64-apple-darwin,
+            powerpc64-linux-gnu,
+            powerpc64le-linux-gnu,
+            s390x-linux-gnu
         ]
     steps:
       - uses: actions/checkout@v2
