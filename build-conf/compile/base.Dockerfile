@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade
